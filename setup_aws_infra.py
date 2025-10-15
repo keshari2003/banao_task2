@@ -1,4 +1,3 @@
-# setup_aws_infra.py
 import boto3
 
 # --- Configuration ---
@@ -18,7 +17,7 @@ vpc_response = ec2_client.create_vpc(CidrBlock='10.0.0.0/16')
 vpc_id = vpc_response['Vpc']['VpcId']
 ec2_client.get_waiter('vpc_available').wait(VpcIds=[vpc_id])
 ec2_client.create_tags(Resources=[vpc_id], Tags=[{'Key': 'Name', 'Value': 'my-local-vpc'}])
-print(f"✅ VPC created with ID: {vpc_id}")
+print(f" VPC created with ID: {vpc_id}")
 
 # 2. Create two Subnets
 print("Creating Subnets...")
@@ -29,14 +28,14 @@ ec2_client.create_tags(Resources=[subnet1_id], Tags=[{'Key': 'Name', 'Value': 'p
 subnet2_response = ec2_client.create_subnet(VpcId=vpc_id, CidrBlock='10.0.2.0/24', AvailabilityZone=f"{REGION}b")
 subnet2_id = subnet2_response['Subnet']['SubnetId']
 ec2_client.create_tags(Resources=[subnet2_id], Tags=[{'Key': 'Name', 'Value': 'public-subnet-b'}])
-print(f"✅ Subnets created: {subnet1_id}, {subnet2_id}")
+print(f" Subnets created: {subnet1_id}, {subnet2_id}")
 
 # 3. Create Internet Gateway and attach to VPC
 print("Creating Internet Gateway...")
 igw_response = ec2_client.create_internet_gateway()
 igw_id = igw_response['InternetGateway']['InternetGatewayId']
 ec2_client.attach_internet_gateway(VpcId=vpc_id, InternetGatewayId=igw_id)
-print(f"✅ Internet Gateway created and attached: {igw_id}")
+print(f" Internet Gateway created and attached: {igw_id}")
 
 # 4. Create Route Table and Public Route
 print("Creating Route Table...")
@@ -45,7 +44,7 @@ rt_id = route_table_response['RouteTable']['RouteTableId']
 ec2_client.create_route(RouteTableId=rt_id, DestinationCidrBlock='0.0.0.0/0', GatewayId=igw_id)
 ec2_client.associate_route_table(SubnetId=subnet1_id, RouteTableId=rt_id)
 ec2_client.associate_route_table(SubnetId=subnet2_id, RouteTableId=rt_id)
-print(f"✅ Route Table created and associated: {rt_id}")
+print(f" Route Table created and associated: {rt_id}")
 
 # 5. Create Security Group
 print("Creating Security Group...")
@@ -57,7 +56,7 @@ ec2_client.authorize_security_group_ingress(
     GroupId=sg_id,
     IpPermissions=[{'IpProtocol': 'tcp', 'FromPort': 80, 'ToPort': 80, 'IpRanges': [{'CidrIp': '0.0.0.0/0'}]}]
 )
-print(f"✅ Security Group created: {sg_id}")
+print(f" Security Group created: {sg_id}")
 
 # 6. Create EC2 Instances (dummy targets)
 print("Launching EC2 instances...")
@@ -72,7 +71,7 @@ instance_response = ec2_resource.create_instances(
 instance_ids = [instance.id for instance in instance_response]
 waiter = ec2_client.get_waiter('instance_running')
 waiter.wait(InstanceIds=instance_ids)
-print(f"✅ EC2 Instances launched: {', '.join(instance_ids)}")
+print(f" EC2 Instances launched: {', '.join(instance_ids)}")
 
 # 7. Create Classic Load Balancer
 print("Creating Classic Load Balancer...")
@@ -90,7 +89,7 @@ lb_response = elb_client.create_load_balancer(
     Subnets=[subnet1_id, subnet2_id],
     SecurityGroups=[sg_id]
 )
-print(f"✅ Classic Load Balancer created with DNS: {lb_response['DNSName']}")
+print(f" Classic Load Balancer created with DNS: {lb_response['DNSName']}")
 
 # 8. Register EC2 instances with the Classic Load Balancer
 print("Registering instances with Load Balancer...")
@@ -99,6 +98,6 @@ elb_client.register_instances_with_load_balancer(
     LoadBalancerName=lb_name,
     Instances=targets
 )
-print("✅ Instances registered.")
+print("Instances registered.")
 
-print("\n🎉 Infrastructure setup complete!")
+print("\n Infrastructure setup complete!")
