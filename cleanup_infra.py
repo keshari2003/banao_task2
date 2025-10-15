@@ -8,7 +8,7 @@ REGION = 'us-east-1'
 ec2_client = boto3.client('ec2', region_name=REGION, endpoint_url=LOCALSTACK_ENDPOINT)
 elb_client = boto3.client('elb', region_name=REGION, endpoint_url=LOCALSTACK_ENDPOINT) # CHANGED
 
-print("🔥 Starting infrastructure cleanup...")
+print(" Starting infrastructure cleanup...")
 
 try:
     # --- Clean up ELB resources ---
@@ -67,8 +67,8 @@ try:
     print(f"Deleting VPC {vpc_id}...")
     ec2_client.delete_vpc(VpcId=vpc_id)
 
-    print("\n✅ Cleanup complete!")
+    print("\n Cleanup complete!")
 
 except Exception as e:
-    print(f"\n❌ An error occurred during cleanup: {e}")
+    print(f"\n An error occurred during cleanup: {e}")
     print("Some resources might not have been created or were already deleted.")
